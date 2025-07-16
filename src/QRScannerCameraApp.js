@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 
-const GOOGLE_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbxLjjl1OC7etF5yZK_IMj0_U3q_HHQ54kBNKMvSfDN72HvYzMVzB3s7TwydWKtyUHz_Jg/exec";
+// Google Script URL is now ONLY in the Vercel API handler, not here!
 
 export default function QRScannerCameraApp() {
   const [status, setStatus] = useState("");
@@ -12,12 +11,37 @@ export default function QRScannerCameraApp() {
   const html5QrCodeRef = useRef(null);
   const isProcessingRef = useRef(false);
 
+  // Util: Validate QR value
+  const isValidQR = (qrValue) => {
+    const match = /^EVENT2025-(\d{3})$/.exec(qrValue);
+    if (!match) return false;
+    const num = parseInt(match[1], 10);
+    return num >= 1 && num <= 200;
+  };
+
   const handleScanSuccess = async (decodedText) => {
     if (isProcessingRef.current) return;
     isProcessingRef.current = true;
 
+    // 1. Validate QR Code Format
+    if (!isValidQR(decodedText)) {
+      setFeedbackIcon("❌");
+      setStatus("Invalid QR Code");
+      isProcessingRef.current = false;
+      return;
+    }
+
+    // 2. Check for session duplicates (already scanned in this browser)
+    if (log.some((entry) => entry.id === decodedText)) {
+      setFeedbackIcon("⚠️");
+      setStatus("Already Scanned (Session)");
+      isProcessingRef.current = false;
+      return;
+    }
+
     try {
-      const response = await fetch(GOOGLE_SCRIPT_URL, {
+      // 3. Check with backend for true duplicates and submit
+      const response = await fetch("/api/scan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ scannedId: decodedText }),
