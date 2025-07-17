@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxOX-fT-apvCvULNl8A3mX1ZdIBFzPL0n9_oPcxrtVBdjPfljSFLNkNFTs7c46lx-JrQ/exec"; // <--- PUT YOUR SCRIPT URL
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxwAOZmkivSylnoNj_ACA5YZtxT9Cj5XB9z9d-wi519Ffh_jDrywuLAWLXgBdYJuytaug/exec"; // <--- PUT YOUR SCRIPT URL
 
   try {
     const body = req.body;
